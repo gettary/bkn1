@@ -1,4 +1,4 @@
-import { assessmentService, userDataService } from '@/services'
+import { assessmentService, userDataService } from '../../services'
 
 const state = {
   assessments: [],

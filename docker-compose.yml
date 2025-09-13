@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PostgreSQL Database
   postgres:
@@ -22,7 +20,7 @@ services:
     image: dpage/pgadmin4:latest
     container_name: bkn1_pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: admin@bkn1.local
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin123
     volumes:
       - pgadmin_data:/var/lib/pgadmin
@@ -41,7 +39,7 @@ services:
     container_name: bkn1_api
     environment:
       DATABASE_URL: postgresql://bkn1_user:bkn1_password@postgres:5432/bkn1_db
-      SECRET_KEY: your-secret-key-here
+      SECRET_KEY: d2faf048fdd50310e08f393074652b444ca68160e355008e95cd674026fd85a4
       FLASK_ENV: development
     volumes:
       - ./backend:/app

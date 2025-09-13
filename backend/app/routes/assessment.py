@@ -6,6 +6,7 @@ from app.models.user_data import UserPermission
 from database import db
 from datetime import datetime
 
+
 assessment_bp = Blueprint('assessment', __name__)
 
 @assessment_bp.route('/', methods=['GET'])

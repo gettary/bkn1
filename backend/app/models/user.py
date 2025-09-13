@@ -1,7 +1,8 @@
 from database import db
 import uuid
 from datetime import datetime
-from werkzeug.security import generate_password_hash, check_password_hash
+#from werkzeug.security import generate_password_hash, check_password_hash  // change hash lib to bcrypt
+import bcrypt
 
 class User(db.Model):
     __tablename__ = 'users'
@@ -23,11 +24,19 @@ class User(db.Model):
     
     def set_password(self, password):
         """Hash and set password"""
-        self.password_hash = generate_password_hash(password)
-    
+        # Disable old hashing method and change to bcrypt
+        #self.password_hash = generate_password_hash(password, method='bcrypt')
+
+        # Change hashing method to bcrypt
+        self.password_hash = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
     def check_password(self, password):
         """Check if provided password matches hash"""
-        return check_password_hash(self.password_hash, password)
+        # Disable old hashing method and change to bcrypt
+        #return check_password_hash(self.password_hash, password)
+
+        # Change hashing method to bcrypt
+        return bcrypt.checkpw(password.encode('utf-8'), self.password_hash.encode('utf-8'))
     
     def has_permission(self, indicator_id, permission_type='view'):
         """Check if user has permission for specific indicator"""
