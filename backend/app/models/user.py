@@ -1,4 +1,4 @@
-from app import db
+from database import db
 import uuid
 from datetime import datetime
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -34,6 +34,7 @@ class User(db.Model):
         if self.role in ['Admin', 'Moderator']:
             return True
             
+        from app.models.user_data import UserPermission
         permission = UserPermission.query.filter_by(
             user_id=self.id,
             indicator_id=indicator_id

@@ -1,5 +1,4 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from flask_jwt_extended import JWTManager
 from flask_cors import CORS
 from dotenv import load_dotenv
@@ -20,10 +19,16 @@ app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400  # 24 hours
 app.config['UPLOAD_FOLDER'] = 'uploads'
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
 
-# Initialize extensions
-db = SQLAlchemy(app)
+# Initialize database
+from database import db
+db.init_app(app)
+
+# Initialize other extensions
 jwt = JWTManager(app)
 CORS(app)
+
+# Create uploads directory
+os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 # Import models
 from app.models.user import User
@@ -39,9 +44,6 @@ from app.routes.user_data import user_data_bp
 app.register_blueprint(auth_bp, url_prefix='/api/auth')
 app.register_blueprint(assessment_bp, url_prefix='/api/assessments')
 app.register_blueprint(user_data_bp, url_prefix='/api/user-data')
-
-# Create uploads directory
-os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 
 if __name__ == '__main__':
     with app.app_context():

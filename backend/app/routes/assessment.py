@@ -3,7 +3,7 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.models.user import User
 from app.models.assessment import Assessment, AssessmentItem, Indicator, IndicatorItem
 from app.models.user_data import UserPermission
-from app import db
+from database import db
 from datetime import datetime
 
 assessment_bp = Blueprint('assessment', __name__)

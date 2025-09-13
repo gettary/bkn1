@@ -1,10 +1,10 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request, jsonify, current_app as app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from werkzeug.utils import secure_filename
 from app.models.user import User
 from app.models.assessment import IndicatorItem, Indicator
 from app.models.user_data import UserData, UserPermission
-from app import db, app
+from database import db
 import os
 from PIL import Image
 
