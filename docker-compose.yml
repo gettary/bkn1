@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: bkn1_postgres
+    environment:
+      POSTGRES_DB: bkn1_db
+      POSTGRES_USER: bkn1_user
+      POSTGRES_PASSWORD: bkn1_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5432:5432"
+    networks:
+      - bkn1_network
+
+  # PgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: bkn1_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@bkn1.local
+      PGADMIN_DEFAULT_PASSWORD: admin123
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    ports:
+      - "5050:80"
+    networks:
+      - bkn1_network
+    depends_on:
+      - postgres
+
+  # Flask API Backend
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: bkn1_api
+    environment:
+      DATABASE_URL: postgresql://bkn1_user:bkn1_password@postgres:5432/bkn1_db
+      SECRET_KEY: your-secret-key-here
+      FLASK_ENV: development
+    volumes:
+      - ./backend:/app
+      - ./uploads:/app/uploads
+    ports:
+      - "5000:5000"
+    networks:
+      - bkn1_network
+    depends_on:
+      - postgres
+
+  # Vue.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: bkn1_frontend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      - bkn1_network
+    environment:
+      - NODE_ENV=development
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: bkn1_nginx
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./uploads:/var/www/uploads
+    ports:
+      - "80:80"
+    networks:
+      - bkn1_network
+    depends_on:
+      - frontend
+      - api
+
+  # Metabase for BI Dashboard
+  metabase:
+    image: metabase/metabase:latest
+    container_name: bkn1_metabase
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: bkn1_db
+      MB_DB_PORT: 5432
+      MB_DB_USER: bkn1_user
+      MB_DB_PASSWORD: bkn1_password
+      MB_DB_HOST: postgres
+    ports:
+      - "3001:3000"
+    networks:
+      - bkn1_network
+    volumes:
+      - metabase_data:/metabase-data
+    depends_on:
+      - postgres
+
+volumes:
+  postgres_data:
+  pgadmin_data:
+  metabase_data:
+
+networks:
+  bkn1_network:
+    driver: bridge
