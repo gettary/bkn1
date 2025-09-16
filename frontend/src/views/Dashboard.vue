@@ -3,8 +3,8 @@
     <!-- Sidebar -->
     <el-aside :width="sidebarWidth" class="sidebar">
       <div class="logo">
-        <h3 v-if="!isCollapsed">BKN1 Assessment</h3>
-        <h3 v-else>BKN11111</h3>
+        <h3 v-if="!isCollapsed">BUENGKAN HOSPITAL KPI System</h3>
+        <h3 v-else>BUENGKAN HOSPITAL KPI System</h3>
       </div>
       
       <el-menu

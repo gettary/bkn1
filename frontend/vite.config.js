@@ -6,7 +6,8 @@ export default defineConfig({
   plugins: [vue()],
   server: {
     host: '0.0.0.0',
-    port: 3000
+    port: 3000,
+    allowedHosts: ['affiliate-nikon-raw-tomato.trycloudflare.com'], // Allow subdomains of localhost and ngrok-free.app
   },
   resolve: {
     alias: {

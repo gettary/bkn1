@@ -15,7 +15,7 @@ services:
     networks:
       - bkn1_network
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U bkn1_user"]
+      test: ["CMD-SHELL", "pg_isready -U bkn1_user -d bkn1_db"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -103,7 +103,7 @@ services:
     networks:
       - bkn1_network
     volumes:
-      - metabase_data:/metabase-data
+      - ./metabase_data:/metabase-data
       - ./metabase-entrypoint.sh:/entrypoint.sh
     depends_on:
       postgres:

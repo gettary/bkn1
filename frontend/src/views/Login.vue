@@ -3,7 +3,7 @@
     <el-card class="login-card" shadow="hover">
       <template #header>
         <div class="card-header">
-          <h2>เข้าสู่ระบบ BKN1 Assessment System</h2>
+          <h2>Welcome to BUENGKAN HOSPITAL KPI System</h2>
         </div>
       </template>
       
@@ -102,7 +102,7 @@ export default {
 
         ElMessage.success('เข้าสู่ระบบสำเร็จ')
         router.push('/dashboard')
-      } catch (error) {
+      } catch (error) {        
         ElMessage.error(error.response?.data?.error || 'เกิดข้อผิดพลาดในการเข้าสู่ระบบ')
       } finally {
         loading.value = false
