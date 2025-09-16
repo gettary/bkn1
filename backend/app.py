@@ -11,8 +11,8 @@ load_dotenv()
 app = Flask(__name__)
 
 # Configuration
-app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'your-secret-key-here')
-app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql+psycopg2://bkn1_user:bkn1_password@localhost:5432/bkn1_db?client_encoding=utf8')
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'jd2faf048fdd50310e08f393074652b444ca68160e355008e95cd674026fd85a4')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'postgresql+psycopg2://bkn1_user:bkn1_password@postgres:5432/bkn1_db?client_encoding=utf8')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY', 'jd2faf048fdd50310e08f393074652b444ca68160e355008e95cd674026fd85a4')
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = 86400  # 24 hours
@@ -25,13 +25,12 @@ db.init_app(app)
 
 # Initialize other extensions
 jwt = JWTManager(app)
-#CORS(app)
-# เปิดใช้งาน CORS สำหรับทุก origin
-CORS(app, resources={r"/*": {"origins": "*"}})
 
-@app.route('/api/assessments', methods=['POST'])
-def create_assessment():
-    return {"message": "Assessment created"}, 200
+
+# Commented out to disable this route
+# @app.route('/api/assessments', methods=['POST'])
+# def create_assessment():
+#     return {"message": "Assessment created"}, 200
 
 # Create uploads directory
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
@@ -45,6 +44,11 @@ from app.models.user_data import UserData, UserPermission
 from app.routes.auth import auth_bp
 from app.routes.assessment import assessment_bp
 from app.routes.user_data import user_data_bp
+
+CORS(app)
+# เปิดใช้งาน CORS สำหรับทุก origin
+CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(auth_bp, resources={r"/*": {"origins": "*"}})
 
 # Register blueprints
 app.register_blueprint(auth_bp, url_prefix='/api/auth')

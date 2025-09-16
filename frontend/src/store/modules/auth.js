@@ -1,4 +1,4 @@
-import { authService } from '@/services'
+import { authService } from '../../services'
 
 const state = {
   user: JSON.parse(localStorage.getItem('user')) || null,
@@ -41,13 +41,29 @@ const actions = {
     }
   },
 
-  async getProfile({ commit }) {
+//  async getProfile({ commit }) {
+//    try {
+//      const response = await authService.getProfile()
+//      commit('SET_USER', response.user)
+//      return response
+//    } catch (error) {
+//      commit('LOGOUT')
+//      throw error
+//    }
+//  },
+
+  // ตรวจสอบ Token หลังจาก Reload:
+  async getProfile({ commit, state }) {
+    if (!state.token) {
+      commit('LOGOUT')
+      return
+    }
     try {
       const response = await authService.getProfile()
       commit('SET_USER', response.user)
       return response
     } catch (error) {
-      commit('LOGOUT')
+      commit('LOGOUT') // หาก Token ไม่ถูกต้อง
       throw error
     }
   },

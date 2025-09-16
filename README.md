@@ -144,6 +144,7 @@ npm run dev
 ### Authentication Endpoints
 - `POST /api/auth/login` - เข้าสู่ระบบ
 - `GET /api/auth/profile` - ข้อมูลผู้ใช้ปัจจุบัน
+- `POST /api/auth/users` - เพิ่มผู้ใช้
 - `GET /api/auth/users` - รายการผู้ใช้ (Admin/Moderator)
 
 ### Assessment Endpoints

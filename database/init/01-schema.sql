@@ -98,7 +98,9 @@ CREATE INDEX idx_user_data_indicator_item_id ON user_data(indicator_item_id);
 INSERT INTO users (username, email, password_hash, role, full_name) VALUES 
 ('admin', 'admin@bkn1.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2Xvz3o.2Zu', 'Admin', 'ผู้ดูแลระบบ'),
 ('moderator', 'moderator@bkn1.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2Xvz3o.2Zu', 'Moderator', 'ผู้ควบคุม'),
-('user1', 'user1@bkn1.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2Xvz3o.2Zu', 'User', 'ผู้ใช้งานทั่วไป');
+('user1', 'user1@bkn1.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2Xvz3o.2Zu', 'User', 'AA'),
+('user2', 'user2@bkn1.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2Xvz3o.2Zu', 'User', 'BB'),
+('user3', 'user3@bkn1.local', '$2b$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/LewdBPj2Xvz3o.2Zu', 'User', 'CC');
 
 -- Function to update updated_at timestamp
 CREATE OR REPLACE FUNCTION update_updated_at_column()

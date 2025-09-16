@@ -79,5 +79,11 @@ export const userDataService = {
   async getAssessmentReport(assessmentId) {
     const response = await api.get(`/user-data/report/${assessmentId}`)
     return response.data
+  },
+
+  async deleteUploadedFile(indicatorItemId) {
+    const response = await api.delete(`/user-data/${indicatorItemId}/delete`)
+    return response.data
   }
 }
+

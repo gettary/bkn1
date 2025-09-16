@@ -1,0 +1,15 @@
+async createAssessment(data) {
+    try {
+        const response = await api.post('/api/assessments', data);
+        console.log("API Response:", response);
+
+        if (!response.assessment) {
+            throw new Error("Invalid API response: Missing assessment data");
+        }
+
+        return response.assessment;
+    } catch (error) {
+        console.error("Error creating assessment:", error);
+        throw error;
+    }
+}

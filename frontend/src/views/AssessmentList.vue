@@ -17,7 +17,7 @@
 
       <el-table
         v-loading="loading"
-        :data="assessments"
+        :data="filteredAssessments"      
         style="width: 100%"
         empty-text="ไม่มีข้อมูลแบบประเมิน"
       >
@@ -42,10 +42,10 @@
         >
           <template #default="{ row }">
             <el-tag
-              :type="row.status === 'published' ? 'success' : 'warning'"
+              :type="row?.status === 'published' ? 'success' : 'warning'"
               size="small"
             >
-              {{ row.status === 'published' ? 'เผยแพร่แล้ว' : 'ร่าง' }}
+              {{ row?.status ? (row.status === 'published' ? 'เผยแพร่แล้ว' : 'ร่าง') : 'ไม่ระบุสถานะ' }}
             </el-tag>
           </template>
         </el-table-column>
@@ -57,7 +57,7 @@
           align="center"
         >
           <template #default="{ row }">
-            {{ formatDate(row.created_at) }}
+            {{ row && row.created_at ? formatDate(row.created_at) : '-' }}
           </template>
         </el-table-column>
         
@@ -141,6 +141,11 @@ export default {
     const assessments = computed(() => store.getters['assessment/assessments'])
     const canManageAssessments = computed(() => store.getters['auth/canManageAssessments'])
 
+    // Filter assessments to remove undefined/null items
+    const filteredAssessments = computed(() => {
+      return assessments.value.filter(item => item !== undefined && item !== null)
+    })
+
     const formatDate = (dateString) => {
       if (!dateString) return '-'
       const date = new Date(dateString)
@@ -217,7 +222,7 @@ export default {
 
     return {
       loading,
-      assessments,
+      filteredAssessments,
       canManageAssessments,
       formatDate,
       goToDataEntry,
@@ -227,6 +232,7 @@ export default {
     }
   }
 }
+
 </script>
 
 <style scoped>

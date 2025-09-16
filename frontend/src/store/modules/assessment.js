@@ -11,7 +11,15 @@ const mutations = {
     state.loading = loading
   },
   SET_ASSESSMENTS(state, assessments) {
-    state.assessments = assessments
+    console.log("SET_ASSESSMENTS called with:", assessments) // Log the input data
+    if (!assessments || !Array.isArray(assessments)) {
+      console.error('Invalid assessments data:', assessments)
+      state.assessments = []
+      return
+    }
+    console.log("Valid assessments data. Updating state.") // Log before updating state
+    state.assessments = assessments  
+    console.log("State updated. Current assessments:", state.assessments) // Log the updated state
   },
   SET_CURRENT_ASSESSMENT(state, assessment) {
     state.currentAssessment = assessment
@@ -26,7 +34,16 @@ const mutations = {
     }
   },
   REMOVE_ASSESSMENT(state, assessmentId) {
-    state.assessments = state.assessments.filter(a => a.id !== assessmentId)
+    if (!assessmentId) {
+      console.error('Invalid assessmentId:', assessmentId)
+      return
+    }
+
+    if (Array.isArray(state.assessments)) {
+      state.assessments = state.assessments.filter(a => a.id !== assessmentId)
+    } else {
+      console.error('state.assessments is not an array:', state.assessments)
+    }
   }
 }
 
@@ -59,22 +76,33 @@ const actions = {
 
   async createAssessment({ commit }, assessment) {
     try {
+      console.log("Sending data to API:", assessment);
       const response = await assessmentService.createAssessment(assessment)
+      console.log('API Response:', response) // Log the full response for debugging
+
+      // Validate the response structure
+      if (!response || !response.assessment) {
+        throw new Error('Invalid API response: Missing assessment data')
+      }
+
       commit('ADD_ASSESSMENT', response.assessment)
-      return response
+      return response.assessment // Return the assessment object
     } catch (error) {
+      console.error('Error creating assessment:', error)
       throw error
     }
   },
 
   async updateAssessment({ commit }, { id, assessment }) {
-    try {
-      const response = await assessmentService.updateAssessment(id, assessment)
-      commit('UPDATE_ASSESSMENT', response.assessment)
-      return response
-    } catch (error) {
-      throw error
-    }
+  try {
+    console.log("updateAssessment called with ID:", id);
+    console.log("Assessment data:", assessment);
+    await assessmentService.updateAssessment(id, assessment);
+    console.log("Assessment updated successfully:", assessment);
+  } catch (error) {
+    console.error("Error updating assessment:", error);
+    throw error;
+  }
   },
 
   async deleteAssessment({ commit }, id) {

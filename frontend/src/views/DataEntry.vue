@@ -47,8 +47,8 @@
                   </div>
 
                   <el-form
-                    :ref="el => setFormRef(`form-${itemIndex}-${indicatorIndex}-${itemIdx}`, el)"
-                    :model="userDataMap[indicatorItem.id] || {}"
+                    v-if="userDataMap[indicatorItem.id]"
+                    :model="userDataMap[indicatorItem.id]"
                     label-position="top"
                     class="data-form"
                   >
@@ -98,11 +98,26 @@
                               เลือกไฟล์
                             </el-button>
                           </el-upload>
+
                           <div v-if="userDataMap[indicatorItem.id].image_path" class="uploaded-image">
-                            <el-text type="success" size="small">
-                              <el-icon><Check /></el-icon>
-                              อัพโหลดสำเร็จ
-                            </el-text>
+                            <el-row align="middle" :gutter="10">
+                              <el-col>
+                                <el-text type="success" size="small">
+                                  <el-icon><Check /></el-icon>
+                                  {{ getFileName(userDataMap[indicatorItem.id].image_path) }}
+                                </el-text>
+                              </el-col>
+                              <el-col>
+                                <el-button
+                                  type="danger"
+                                  size="small"
+                                  icon="el-icon-delete"
+                                  @click="deleteUploadedFile(indicatorItem.id)"
+                                >
+                                  ลบไฟล์
+                                </el-button>
+                              </el-col>
+                            </el-row>
                           </div>
                         </el-form-item>
                       </el-col>
@@ -123,11 +138,11 @@
                         ส่งข้อมูล
                       </el-button>
                       <el-tag
-                        v-if="userDataMap[indicatorItem.id].status"
+                        v-if="userDataMap[indicatorItem.id]?.status"
                         :type="userDataMap[indicatorItem.id].status === 'complete' ? 'success' : 'warning'"
                         size="small"
                       >
-                        {{ userDataMap[indicatorItem.id].status === 'complete' ? 'ส่งแล้ว' : 'ร่าง' }}
+                        {{ userDataMap[indicatorItem.id]?.status === 'complete' ? 'ส่งแล้ว' : 'ร่าง' }}
                       </el-tag>
                     </div>
                   </el-form>
@@ -224,6 +239,11 @@ export default {
       visibleItems.value.forEach(item => {
         item.indicators.forEach(indicator => {
           indicator.items.forEach(indicatorItem => {
+            if (!indicatorItem.id) {
+              console.error('IndicatorItem ID is undefined:', indicatorItem)
+              return
+            }
+
             promises.push(loadUserDataForItem(indicatorItem.id))
           })
         })
@@ -344,6 +364,26 @@ export default {
       ElMessage.error('เกิดข้อผิดพลาดในการอัพโหลดรูปภาพ')
     }
 
+    const getFileName = (path) => {
+      if (!path) return ''
+      // ดึงเฉพาะชื่อไฟล์หลัง `_` สุดท้าย
+      const parts = path.split('_')
+      return parts[parts.length - 1]
+    }
+
+    const deleteUploadedFile = async (indicatorItemId) => {
+      console.log('Attempting to delete file for:', indicatorItemId) // ตรวจสอบค่า
+      try {
+        await userDataService.deleteUploadedFile(indicatorItemId)
+        console.log('DELETE request sent successfully') // ตรวจสอบว่า request ถูกส่ง
+        userDataMap[indicatorItemId].image_path = ''
+        ElMessage.success('ลบไฟล์สำเร็จ')
+      } catch (error) {
+        console.error('Error deleting file:', error) // แสดงข้อผิดพลาดในคอนโซล
+        ElMessage.error('เกิดข้อผิดพลาดในการลบไฟล์')
+      }
+    }
+
     onMounted(() => {
       loadAssessment()
     })
@@ -362,7 +402,9 @@ export default {
       submitData,
       beforeUpload,
       onUploadSuccess,
-      onUploadError
+      onUploadError,
+      getFileName, // เพิ่มฟังก์ชันนี้ใน return
+      deleteUploadedFile
     }
   }
 }

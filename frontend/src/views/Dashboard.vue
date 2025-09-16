@@ -4,7 +4,7 @@
     <el-aside :width="sidebarWidth" class="sidebar">
       <div class="logo">
         <h3 v-if="!isCollapsed">BKN1 Assessment</h3>
-        <h3 v-else>BKN1</h3>
+        <h3 v-else>BKN11111</h3>
       </div>
       
       <el-menu
@@ -182,7 +182,7 @@ export default {
       } else if (command === 'profile') {
         ElMessage.info('ฟีเจอร์ข้อมูลส่วนตัวยังไม่เปิดให้บริการ')
       }
-    }
+    }    
     
     return {
       isCollapsed,

@@ -22,12 +22,12 @@ const routes = [
   },
   {
     path: '/dashboard',
-    name: 'Dashboard',
     component: Dashboard,
     meta: { requiresAuth: true },
     children: [
       {
         path: '',
+        name: 'Dashboard',
         redirect: '/dashboard/assessments'
       },
       {
@@ -75,9 +75,9 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !isAuthenticated) {
     next('/login')
   } else if (to.meta.roles && !to.meta.roles.includes(userRole)) {
-    next('/dashboard/assessments') // Redirect to assessments if no permission
+    next('/assessments') // Redirect to assessments if no permission
   } else if (to.name === 'Login' && isAuthenticated) {
-    next('/dashboard')
+    next('/assessments')
   } else {
     next()
   }

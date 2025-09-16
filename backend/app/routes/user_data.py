@@ -7,6 +7,11 @@ from app.models.user_data import UserData, UserPermission
 from database import db
 import os
 from PIL import Image
+import logging
+
+# Configure logging
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 user_data_bp = Blueprint('user_data', __name__)
 
@@ -286,4 +291,50 @@ def get_assessment_report(assessment_id):
         return jsonify({'report': report_data}), 200
         
     except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@user_data_bp.route('/<indicator_item_id>/delete', methods=['DELETE'])
+@jwt_required()
+def delete_uploaded_file(indicator_item_id):
+    """Delete uploaded image for indicator item"""
+    logging.info(f"Request to delete image for indicator_item_id: {indicator_item_id}")
+    try:
+        current_user_id = get_jwt_identity()
+        current_user = User.query.get(current_user_id)
+
+        if not current_user:
+            return jsonify({'error': 'User not found'}), 404
+
+        indicator_item = IndicatorItem.query.get(indicator_item_id)
+
+        if not indicator_item:
+            return jsonify({'error': 'Indicator item not found'}), 404
+
+        # Check if user has permission
+        if not current_user.has_permission(indicator_item.indicator_id, 'edit'):
+            return jsonify({'error': 'Access denied'}), 403
+
+        user_data = UserData.query.filter_by(
+            user_id=current_user_id,
+            indicator_item_id=indicator_item_id
+        ).first()
+        logging.info(f"User data found for deletion: {user_data}")
+
+        if not user_data or not user_data.image_path:
+            return jsonify({'error': 'No image to delete'}), 404
+
+        # Remove the file from the filesystem
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], user_data.image_path)
+        logging.info(f"Image path for deletion: {user_data.image_path}")
+        if os.path.exists(file_path):
+            os.remove(file_path)
+
+        # Remove the image path from the database
+        user_data.image_path = None
+        db.session.commit()
+
+        return jsonify({'message': 'Image deleted successfully'}), 200
+
+    except Exception as e:
+        db.session.rollback()
         return jsonify({'error': str(e)}), 500

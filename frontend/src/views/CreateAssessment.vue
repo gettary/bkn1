@@ -258,6 +258,7 @@ export default {
         selectedUsers: [],
         items: []
       })
+      console.log('Indicators after adding:', formData.items[itemIndex].indicators) // Debugging indicators
     }
 
     const removeIndicator = (itemIndex, indicatorIndex) => {
@@ -305,47 +306,51 @@ export default {
     }
 
     const prepareFormData = () => {
-      return {
+      const data = {
         fiscal_year: formData.fiscal_year,
         items: formData.items.map((item, itemIndex) => ({
-          title: item.title,
+          title: item.title || 'Untitled',
           order_index: itemIndex,
-          indicators: item.indicators.map((indicator, indicatorIndex) => ({
-            title: indicator.title,
-            order_index: indicatorIndex,
-            permissions: indicator.selectedUsers.map(userId => ({
-              user_id: userId,
-              can_view: true,
-              can_edit: true
-            })),
-            items: indicator.items.map((indicatorItem, itemIdx) => ({
-              title: indicatorItem.title,
-              target_value: indicatorItem.target_value,
-              actual_target: indicatorItem.actual_target,
-              order_index: itemIdx
+          indicators: item.indicators
+            .filter(indicator => indicator.title.trim() !== '')
+            .map((indicator, indicatorIndex) => ({
+              title: indicator.title,
+              order_index: indicatorIndex,
+              assessment_item_id: item.id, // Pass assessment_item_id to backend
+              permissions: indicator.selectedUsers.map(userId => ({
+                user_id: userId,
+                can_view: true,
+                can_edit: true
+              })),
+              items: indicator.items.map((indicatorItem, itemIdx) => ({
+                title: indicatorItem.title || 'Untitled Item',
+                target_value: indicatorItem.target_value || '',
+                actual_target: indicatorItem.actual_target || '',
+                order_index: itemIdx
+              }))
             }))
-          }))
         }))
       }
+      console.log('Prepared data for API:', JSON.stringify(data, null, 2)) // Debugging prepared data
+      return data
     }
 
     const saveAsDraft = async () => {
       try {
         saving.value = true
         const assessmentData = prepareFormData()
-        
-        if (isEdit.value) {
-          await store.dispatch('assessment/updateAssessment', {
-            id: route.query.edit,
-            assessment: assessmentData
-          })
-        } else {
-          await store.dispatch('assessment/createAssessment', assessmentData)
-        }
-        
-        ElMessage.success('บันทึกแบบประเมินสำเร็จ')
-        router.push('/dashboard/assessments')
+        console.log('Prepared assessment data:', assessmentData) // Debugging prepared data
+
+        const response = isEdit.value
+          ? await store.dispatch('assessment/updateAssessment', {
+              id: route.query.edit,
+              assessment: assessmentData
+            })
+          : await store.dispatch('assessment/createAssessment', assessmentData)
+
+        console.log('Response from API:', response) // Debugging API response
       } catch (error) {
+        console.error('Error saving assessment:', error)
         ElMessage.error(error.response?.data?.error || 'เกิดข้อผิดพลาดในการบันทึก')
       } finally {
         saving.value = false
@@ -365,21 +370,31 @@ export default {
 
         publishing.value = true
         const assessmentData = prepareFormData()
-        
+
         if (isEdit.value) {
           await store.dispatch('assessment/updateAssessment', {
             id: route.query.edit,
             assessment: { ...assessmentData, status: 'published' }
           })
+          ElMessage.success('เผยแพร่แบบประเมินสำเร็จ')
+          router.push('/dashboard/assessments')
         } else {
           const response = await store.dispatch('assessment/createAssessment', assessmentData)
-          await store.dispatch('assessment/publishAssessment', response.assessment.id)
+          console.log('Create response:', response) // Debugging response from createAssessment
+
+          if (response && response.id) {
+            const publishResponse = await store.dispatch('assessment/publishAssessment', response.id)
+            console.log('Publish response:', publishResponse) // Debugging response from publishAssessment
+            ElMessage.success('เผยแพร่แบบประเมินสำเร็จ')
+            router.push('/dashboard/assessments')
+          } else {
+            console.error('Invalid assessment object:', response)
+            ElMessage.error('ไม่สามารถเผยแพร่แบบประเมินได้: ข้อมูลไม่สมบูรณ์')
+          }
         }
-        
-        ElMessage.success('เผยแพร่แบบประเมินสำเร็จ')
-        router.push('/dashboard/assessments')
       } catch (error) {
-        ElMessage.error(error.response?.data?.error || 'เกิดข้อผิดพลาดในการเผยแพร่')
+        console.error('Error publishing assessment:', error)
+        ElMessage.error(error.response?.data?.error || 'เกิดข้อผิดพลาดในการเผยแพร่แบบประเมิน')
       } finally {
         publishing.value = false
       }
@@ -411,7 +426,13 @@ export default {
     const loadUsers = async () => {
       try {
         const response = await authService.getUsers()
-        allUsers.value = response.users.filter(user => user.role === 'User')
+        console.log('Response from getUsers:', response) // Debugging API response
+        if (!Array.isArray(response) || !response[0] || !response[0].users) {
+          console.error('Invalid response structure:', response)
+          return
+        }
+        allUsers.value = response[0].users.filter(user => user.role === 'User')
+        console.log('Filtered Users:', allUsers.value) // Debugging filtered users
       } catch (error) {
         console.error('Error loading users:', error)
       }
@@ -422,7 +443,8 @@ export default {
         try {
           const response = await store.dispatch('assessment/fetchAssessment', route.query.edit)
           const assessment = response.assessment
-          
+          console.log('Assessment data:', assessment) // Debugging assessment data
+
           formData.fiscal_year = assessment.fiscal_year
           formData.items = assessment.items.map(item => ({
             title: item.title,
@@ -436,7 +458,9 @@ export default {
               }))
             }))
           }))
+          console.log('Updated formData:', JSON.stringify(formData, null, 2)) // Debugging updated formData
         } catch (error) {
+          console.error('Error loading assessment for edit:', error)
           ElMessage.error('ไม่สามารถโหลดข้อมูลแบบประเมินได้')
           router.push('/dashboard/assessments')
         }

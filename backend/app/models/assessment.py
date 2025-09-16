@@ -1,6 +1,11 @@
 from database import db
 import uuid
 from datetime import datetime
+import logging
+
+# Configure logging
+logging.basicConfig(filename='app.log', level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 class Assessment(db.Model):
     __tablename__ = 'assessments'
@@ -30,7 +35,8 @@ class Assessment(db.Model):
         
         if include_items:
             result['items'] = [item.to_dict(include_indicators=True) for item in self.items]
-            
+        
+        #logging.info(f"Assessment to_dict result: {result}")    
         return result
 
 class AssessmentItem(db.Model):
@@ -80,12 +86,16 @@ class Indicator(db.Model):
             'assessment_item_id': self.assessment_item_id,
             'title': self.title,
             'order_index': self.order_index,
+            'permissions': [perm.to_dict() for perm in self.permissions],
             'created_at': self.created_at.isoformat() if self.created_at else None
         }
         
         if include_items:
             result['items'] = [item.to_dict() for item in self.items]
-            
+        
+        # Debugging: Log the result
+        #logging.info("Indicator to_dict result: %s", result)
+
         return result
 
 class IndicatorItem(db.Model):

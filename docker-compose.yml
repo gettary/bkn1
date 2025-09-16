@@ -14,6 +14,12 @@ services:
       - "5432:5432"
     networks:
       - bkn1_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bkn1_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   # PgAdmin for database management
   pgadmin:
@@ -49,7 +55,13 @@ services:
     networks:
       - bkn1_network
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   # Vue.js Frontend
   frontend:
@@ -86,21 +98,22 @@ services:
   metabase:
     image: metabase/metabase:latest
     container_name: bkn1_metabase
-    environment:
-      MB_DB_TYPE: postgres
-      MB_DB_DBNAME: bkn1_db
-      MB_DB_PORT: 5432
-      MB_DB_USER: bkn1_user
-      MB_DB_PASSWORD: bkn1_password
-      MB_DB_HOST: postgres
     ports:
       - "3001:3000"
     networks:
       - bkn1_network
     volumes:
       - metabase_data:/metabase-data
+      - ./metabase-entrypoint.sh:/entrypoint.sh
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
 
 volumes:
   postgres_data:
