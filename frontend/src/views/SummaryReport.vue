@@ -302,7 +302,8 @@ export default {
 
     const openDashboard = () => {
       // Open Metabase dashboard in new tab
-      window.open('/dashboard/', '_blank');
+      const dashboardUrl = "http://localhost:3001/public/dashboard/b8404598-0748-48e2-9114-3eba989ad0d1";
+      window.open(dashboardUrl, '_blank');
     };
 
     onMounted(() => {
