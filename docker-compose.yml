@@ -103,7 +103,7 @@ services:
     networks:
       - bkn1_network
     volumes:
-      - ./metabase_data:/metabase-data
+      - ./metabase_data:/metabase.db
       - ./metabase-entrypoint.sh:/entrypoint.sh
     depends_on:
       postgres:

@@ -302,7 +302,7 @@ export default {
 
     const openDashboard = () => {
       // Open Metabase dashboard in new tab
-      const dashboardUrl = "http://affiliate-nikon-raw-tomato.trycloudflare.com/metabase/public/dashboard/22c10365-6cf0-4f1f-b7a7-798e6283e3a4";
+      const dashboardUrl = "/metabase/public/dashboard/22c10365-6cf0-4f1f-b7a7-798e6283e3a4";
       window.open(dashboardUrl, '_blank');
     };
 
