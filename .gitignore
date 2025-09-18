@@ -59,9 +59,9 @@ logs
 *.log
 
 # Uploads directory
-uploads/
+#uploads/
 
 # Database data
-postgres_data/
-pgadmin_data/
-metabase_data/
+#postgres_data/
+#pgadmin_data/
+#metabase_data/
